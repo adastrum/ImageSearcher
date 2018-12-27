@@ -100,7 +100,7 @@ namespace ImageSearcher.Infrastructure.Models
         public List<Url> url { get; set; }
     }
 
-    public class Photo
+    public class PhotoInfo
     {
         public string id { get; set; }
         public string secret { get; set; }
@@ -130,6 +130,6 @@ namespace ImageSearcher.Infrastructure.Models
 
     public class GetByIdResponse : FlickrResponseBase
     {
-        public Photo photo { get; set; }
+        public PhotoInfo photo { get; set; }
     }
 }

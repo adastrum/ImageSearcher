@@ -22,12 +22,12 @@ namespace ImageSearcher.Infrastructure
         private const string GetInfoMethod = "flickr.photos.getInfo";
         private const string RegionAccuracy = "6";
 
-        private readonly HttpClient _client;
+        private readonly IHttpHandler _httpHandler;
         private readonly string _apiKey;
 
-        public ImageService(HttpClient client, string apiKey)
+        public ImageService(IHttpHandler httpHandler, string apiKey)
         {
-            _client = client;
+            _httpHandler = httpHandler;
             _apiKey = apiKey;
         }
 
@@ -116,7 +116,7 @@ namespace ImageSearcher.Infrastructure
                 };
                 var uri = uriBuilder.ToString();
 
-                var content = await _client.GetStringAsync(uri);
+                var content = await _httpHandler.GetStringAsync(uri);
 
                 var response = JsonConvert.DeserializeObject<TResponse>(content);
 
