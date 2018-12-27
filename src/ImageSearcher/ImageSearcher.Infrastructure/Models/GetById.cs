@@ -128,11 +128,8 @@ namespace ImageSearcher.Infrastructure.Models
         public string media { get; set; }
     }
 
-    public class GetByIdResponse
+    public class GetByIdResponse : FlickrResponseBase
     {
         public Photo photo { get; set; }
-        public string stat { get; set; }
-        public int code { get; set; }
-        public string message { get; set; }
     }
 }

@@ -28,58 +28,43 @@ namespace ImageSearcher.Infrastructure
             _apiKey = apiKey;
         }
 
-        public async Task<QueryResult<ImageInfo>> GetById(string id)
+        public async Task<QueryResult<ImageInfo>> GetByIdAsync(string id)
         {
-            try
+            var queryParams = new Dictionary<string, string>
             {
-                var query = await BuildQueryString(id, GetInfoMethod, _apiKey);
+                {"method", GetInfoMethod},
+                {"api_key", _apiKey},
+                {"photo_id", id}
+            };
 
-                var uriBuilder = new UriBuilder(FlickrApiAddress)
-                {
-                    Query = query
-                };
-                var uri = uriBuilder.ToString();
+            var query = await BuildQueryStringAsync(queryParams);
 
-                var content = await _client.GetStringAsync(uri);
-
-                var model = JsonConvert.DeserializeObject<GetByIdResponse>(content);
-
-                var code = MapFlickrErrorCode(model.code);
-                if (code != HttpStatusCode.OK)
-                {
-                    return QueryResult<ImageInfo>.Fail(code, model.message);
-                }
-
-                var imageInfo = Mapper.Map<ImageInfo>(model.photo);
-
-                return QueryResult<ImageInfo>.Success(imageInfo);
-            }
-            catch (HttpRequestException exception)
+            var uriBuilder = new UriBuilder(FlickrApiAddress)
             {
-                //todo
-                return QueryResult<ImageInfo>.Fail(HttpStatusCode.BadRequest, exception.Message);
-            }
-            catch (Exception exception)
-            {
-                return QueryResult<ImageInfo>.Fail(HttpStatusCode.BadRequest, exception.Message);
-            }
+                Query = query
+            };
+            var uri = uriBuilder.ToString();
+
+            return await GetResultAsync<GetByIdResponse, ImageInfo>(uri, x => Mapper.Map<ImageInfo>(x.photo));
         }
 
-        public async Task<QueryResult<ImageSet>> Search(ImageFilter filter)
+        public async Task<QueryResult<ImageSet>> SearchAsync(ImageFilter filter)
         {
             throw new NotImplementedException();
         }
 
-        private static async Task<string> BuildQueryString(string id, string method, string apiKey)
+        private static async Task<string> BuildQueryStringAsync(Dictionary<string, string> extraParams)
         {
             var queryParams = new Dictionary<string, string>
             {
-                {"method", method},
-                {"api_key", apiKey},
-                {"photo_id", id},
                 {"format", "json"},
                 {"nojsoncallback", "1"}
             };
+
+            foreach (var param in extraParams)
+            {
+                queryParams.TryAdd(param.Key, param.Value);
+            }
 
             using (var content = new FormUrlEncodedContent(queryParams))
             {
@@ -87,7 +72,38 @@ namespace ImageSearcher.Infrastructure
             }
         }
 
-        private HttpStatusCode MapFlickrErrorCode(int flickrErrorCode)
+        private async Task<QueryResult<TModel>> GetResultAsync<TResponse, TModel>(string uri, Func<TResponse, TModel> mapping)
+            where TResponse : FlickrResponseBase
+            where TModel : class
+        {
+            try
+            {
+                var content = await _client.GetStringAsync(uri);
+
+                var response = JsonConvert.DeserializeObject<TResponse>(content);
+
+                var code = MapFlickrErrorCode(response.code);
+                if (code != HttpStatusCode.OK)
+                {
+                    return QueryResult<TModel>.Fail(code, response.message);
+                }
+
+                var model = mapping(response);
+
+                return QueryResult<TModel>.Success(model);
+            }
+            catch (HttpRequestException exception)
+            {
+                //todo
+                return QueryResult<TModel>.Fail(HttpStatusCode.BadRequest, exception.Message);
+            }
+            catch (Exception exception)
+            {
+                return QueryResult<TModel>.Fail(HttpStatusCode.BadRequest, exception.Message);
+            }
+        }
+
+        private static HttpStatusCode MapFlickrErrorCode(int flickrErrorCode)
         {
             switch (flickrErrorCode)
             {

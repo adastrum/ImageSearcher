@@ -24,7 +24,7 @@ namespace ImageSearcher.Infrastructure.Tests
             const string apiKey = "bdda66b438fb8008ed3e70a4f8e4e5b0";
             var sut = new ImageService(client, apiKey);
 
-            var queryResult = await sut.GetById("46482105201");
+            var queryResult = await sut.GetByIdAsync("46482105201");
 
             Assert.Equal(HttpStatusCode.OK, queryResult.Code);
             Assert.Null(queryResult.Message);
