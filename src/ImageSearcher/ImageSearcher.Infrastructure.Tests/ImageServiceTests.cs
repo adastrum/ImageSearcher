@@ -13,6 +13,7 @@ namespace ImageSearcher.Infrastructure.Tests
         {
             Mapper.Initialize(cfg =>
             {
+                cfg.AddProfile<SearchProfile>();
                 cfg.AddProfile<GetByIdProfile>();
             });
         }

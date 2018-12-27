@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace ImageSearcher.Infrastructure
         private const string FlickrApiAddress = "https://api.flickr.com/services/rest";
         private const string SearchMethod = "flickr.photos.search";
         private const string GetInfoMethod = "flickr.photos.getInfo";
+        private const string RegionAccuracy = "6";
 
         private readonly HttpClient _client;
         private readonly string _apiKey;
@@ -39,18 +42,47 @@ namespace ImageSearcher.Infrastructure
 
             var query = await BuildQueryStringAsync(queryParams);
 
-            var uriBuilder = new UriBuilder(FlickrApiAddress)
-            {
-                Query = query
-            };
-            var uri = uriBuilder.ToString();
-
-            return await GetResultAsync<GetByIdResponse, ImageInfo>(uri, x => Mapper.Map<ImageInfo>(x.photo));
+            return await GetResultAsync<GetByIdResponse, ImageInfo>(query, x => Mapper.Map<ImageInfo>(x.photo));
         }
 
         public async Task<QueryResult<ImageSet>> SearchAsync(ImageFilter filter)
         {
-            throw new NotImplementedException();
+            var queryParams = new Dictionary<string, string>
+            {
+                {"method", SearchMethod},
+                {"api_key", _apiKey}
+            };
+
+            if (filter.Tags.Any())
+            {
+                queryParams["tags"] = string.Join(",", filter.Tags);
+            }
+
+            if (filter.Longitude.HasValue)
+            {
+                queryParams["lon"] = filter.Longitude.Value.ToString(CultureInfo.InvariantCulture);
+            }
+
+            if (filter.Latitude.HasValue)
+            {
+                queryParams["lat"] = filter.Latitude.Value.ToString(CultureInfo.InvariantCulture);
+            }
+
+            if (filter.Longitude.HasValue || filter.Latitude.HasValue)
+            {
+                queryParams["accuracy"] = RegionAccuracy;
+            }
+
+            var query = await BuildQueryStringAsync(queryParams);
+
+            return await GetResultAsync<SearchResponse, ImageSet>(
+                query,
+                x => new ImageSet
+                {
+                    PageNumber = x.photos.page,
+                    PageSize = x.photos.perpage,
+                    Images = x.photos.photo.Select(Mapper.Map<Image>)
+                });
         }
 
         private static async Task<string> BuildQueryStringAsync(Dictionary<string, string> extraParams)
@@ -72,12 +104,18 @@ namespace ImageSearcher.Infrastructure
             }
         }
 
-        private async Task<QueryResult<TModel>> GetResultAsync<TResponse, TModel>(string uri, Func<TResponse, TModel> mapping)
+        private async Task<QueryResult<TModel>> GetResultAsync<TResponse, TModel>(string query, Func<TResponse, TModel> mapping)
             where TResponse : FlickrResponseBase
             where TModel : class
         {
             try
             {
+                var uriBuilder = new UriBuilder(FlickrApiAddress)
+                {
+                    Query = query
+                };
+                var uri = uriBuilder.ToString();
+
                 var content = await _client.GetStringAsync(uri);
 
                 var response = JsonConvert.DeserializeObject<TResponse>(content);
