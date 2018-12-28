@@ -76,6 +76,16 @@ namespace ImageSearcher.Infrastructure
                 queryParams["accuracy"] = RegionAccuracy;
             }
 
+            if (filter.PageNumber.HasValue)
+            {
+                queryParams["page"] = filter.PageNumber.Value.ToString();
+            }
+
+            if (filter.PageSize.HasValue)
+            {
+                queryParams["per_page"] = filter.PageSize.Value.ToString();
+            }
+
             var query = await BuildQueryStringAsync(queryParams);
 
             return await GetResultAsync<SearchResponse, ImageSet>(

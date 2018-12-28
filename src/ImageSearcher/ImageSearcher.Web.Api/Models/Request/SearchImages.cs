@@ -15,6 +15,10 @@ namespace ImageSearcher.Web.Api.Models.Request
         public decimal? Longitude { get; set; }
 
         public decimal? Latitude { get; set; }
+
+        public int? PageNumber { get; set; }
+
+        public int? PageSize { get; set; }
     }
 
     public class SearchImagesValidator : AbstractValidator<SearchImages>
@@ -26,6 +30,10 @@ namespace ImageSearcher.Web.Api.Models.Request
             RuleFor(x => x.Longitude).InclusiveBetween(-180, 180).When(x => x.Longitude.HasValue);
 
             RuleFor(x => x.Latitude).InclusiveBetween(-90, 90).When(x => x.Latitude.HasValue);
+
+            RuleFor(x => x.PageNumber).GreaterThan(0).When(x => x.PageNumber.HasValue);
+
+            RuleFor(x => x.PageSize).GreaterThan(0).When(x => x.PageSize.HasValue);
         }
     }
 }

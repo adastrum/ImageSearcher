@@ -12,6 +12,8 @@ namespace ImageSearcher.Web.Api.Tests
         [InlineData("tags=cat&longitude=181")]
         [InlineData("tags=cat&longitude=180&latitude=-91")]
         [InlineData("tags=cat&longitude=180&latitude=91")]
+        [InlineData("tags=cat&longitude=180&latitude=90&pagenumber=0")]
+        [InlineData("tags=cat&longitude=180&latitude=90&pagenumber=1&pagesize=0")]
         public async Task Images_Search_ValidatesImageFilter(string query)
         {
             var response = await Client.GetAsync($"/api/images?{query}");

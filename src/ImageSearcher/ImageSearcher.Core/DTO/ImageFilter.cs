@@ -12,5 +12,7 @@ namespace ImageSearcher.Core.DTO
         public IEnumerable<string> Tags { get; set; }
         public decimal? Longitude { get; set; }
         public decimal? Latitude { get; set; }
+        public int? PageNumber { get; set; }
+        public int? PageSize { get; set; }
     }
 }
