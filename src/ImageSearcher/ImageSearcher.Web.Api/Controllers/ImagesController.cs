@@ -14,11 +14,13 @@ namespace ImageSearcher.Web.Api.Controllers
     {
         private readonly IImageService _imageService;
         private readonly IMapper _mapper;
+        private readonly ICachingService _cache;
 
-        public ImagesController(IImageService imageService, IMapper mapper)
+        public ImagesController(IImageService imageService, IMapper mapper, ICachingService cache)
         {
             _imageService = imageService;
             _mapper = mapper;
+            _cache = cache;
         }
 
         [HttpGet("{id}")]

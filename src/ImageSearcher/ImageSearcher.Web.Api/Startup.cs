@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using ImageSearcher.Core.Interfaces;
 using ImageSearcher.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +12,7 @@ using FluentValidation.AspNetCore;
 using ImageSearcher.Infrastructure.MapperProfiles;
 using ImageSearcher.Web.Api.Models.MapperProfiles;
 using ImageSearcher.Web.Api.Models.Request;
+using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace ImageSearcher.Web.Api
@@ -46,6 +48,11 @@ namespace ImageSearcher.Web.Api
             {
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
             });
+
+            var lazyConnection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(Configuration["CacheConnection"]));
+            var cache = lazyConnection.Value.GetDatabase();
+            services.AddSingleton(cache);
+            services.AddScoped<ICachingService, CachingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
