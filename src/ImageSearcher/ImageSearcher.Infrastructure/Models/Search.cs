@@ -27,6 +27,5 @@ namespace ImageSearcher.Infrastructure.Models
     public class SearchResponse : FlickrResponseBase
     {
         public Photos photos { get; set; }
-        public string stat { get; set; }
     }
 }

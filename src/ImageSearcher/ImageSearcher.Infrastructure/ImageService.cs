@@ -21,14 +21,17 @@ namespace ImageSearcher.Infrastructure
         private const string SearchMethod = "flickr.photos.search";
         private const string GetInfoMethod = "flickr.photos.getInfo";
         private const string RegionAccuracy = "6";
+        public static string ResponseStatOk = "ok";
 
         private readonly IHttpHandler _httpHandler;
         private readonly string _apiKey;
+        private readonly IMapper _mapper;
 
-        public ImageService(IHttpHandler httpHandler, string apiKey)
+        public ImageService(IHttpHandler httpHandler, string apiKey, IMapper mapper)
         {
             _httpHandler = httpHandler;
             _apiKey = apiKey;
+            _mapper = mapper;
         }
 
         public async Task<QueryResult<ImageInfo>> GetByIdAsync(string id)
@@ -42,7 +45,7 @@ namespace ImageSearcher.Infrastructure
 
             var query = await BuildQueryStringAsync(queryParams);
 
-            return await GetResultAsync<GetByIdResponse, ImageInfo>(query, x => Mapper.Map<ImageInfo>(x.photo));
+            return await GetResultAsync<GetByIdResponse, ImageInfo>(query, x => _mapper.Map<ImageInfo>(x.photo));
         }
 
         public async Task<QueryResult<ImageSet>> SearchAsync(ImageFilter filter)
@@ -81,7 +84,7 @@ namespace ImageSearcher.Infrastructure
                 {
                     PageNumber = x.photos.page,
                     PageSize = x.photos.perpage,
-                    Images = x.photos.photo.Select(Mapper.Map<Image>)
+                    Images = x.photos.photo.Select(_mapper.Map<Image>)
                 });
         }
 
@@ -121,7 +124,7 @@ namespace ImageSearcher.Infrastructure
                 var response = JsonConvert.DeserializeObject<TResponse>(content);
 
                 var code = MapFlickrErrorCode(response.code);
-                if (code != HttpStatusCode.OK)
+                if (response.stat != ResponseStatOk)
                 {
                     return QueryResult<TModel>.Fail(code, response.message);
                 }
@@ -147,6 +150,22 @@ namespace ImageSearcher.Infrastructure
             {
                 case 1:
                     return HttpStatusCode.NotFound;
+                case 2:
+                    return HttpStatusCode.Unauthorized;
+                case 3:
+                    return HttpStatusCode.BadRequest;
+                case 4:
+                    return HttpStatusCode.Forbidden;
+                case 5:
+                    return HttpStatusCode.Unauthorized;
+                case 10:
+                    return HttpStatusCode.ServiceUnavailable;
+                case 11:
+                    return HttpStatusCode.BadRequest;
+                case 17:
+                    return HttpStatusCode.Forbidden;
+                case 18:
+                    return HttpStatusCode.BadRequest;
                 case 100:
                     return HttpStatusCode.BadRequest;
                 case 105:

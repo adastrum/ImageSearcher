@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using ImageSearcher.Infrastructure.MapperProfiles;
+using ImageSearcher.Web.Api.Models.MapperProfiles;
+using ImageSearcher.Web.Api.Models.Request;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace ImageSearcher.Web.Api
@@ -22,11 +27,20 @@ namespace ImageSearcher.Web.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc()
+                .AddFluentValidation();
+            services.AddTransient<IValidator<SearchImages>, SearchImagesValidator>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<IHttpHandler, HttpHandler>();
-            services.AddSingleton<IImageService, ImageService>(x => new ImageService(x.GetService<IHttpHandler>(), Configuration["FlickrApiKey"]));
-            services.AddAutoMapper();
+            var configuration = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<SearchProfile>();
+                cfg.AddProfile<GetByIdProfile>();
+                cfg.AddProfile<ImageFilterProfile>();
+            });
+            var mapper = configuration.CreateMapper();
+            services.AddSingleton(mapper);
+            services.AddSingleton<IImageService, ImageService>(x => new ImageService(x.GetService<IHttpHandler>(), Configuration["FlickrApiKey"], mapper));
 
             services.AddSwaggerGen(c =>
             {

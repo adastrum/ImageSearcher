@@ -17,13 +17,17 @@ namespace ImageSearcher.Infrastructure.Tests
         private const string ApiKey = "bdda66b438fb8008ed3e70a4f8e4e5b0";
         private const string Id = "46482105201";
 
+        private readonly IMapper _mapper;
+
         public ImageServiceTests()
         {
-            Mapper.Initialize(cfg =>
+            var configuration = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile<SearchProfile>();
                 cfg.AddProfile<GetByIdProfile>();
             });
+
+            _mapper = configuration.CreateMapper();
         }
 
         [Fact(Skip = "live test")]
@@ -31,7 +35,7 @@ namespace ImageSearcher.Infrastructure.Tests
         {
             var client = new HttpClient();
             var httpHandler = new HttpHandler(client);
-            var sut = new ImageService(httpHandler, ApiKey);
+            var sut = new ImageService(httpHandler, ApiKey, _mapper);
 
             var queryResult = await sut.GetByIdAsync(Id);
 
@@ -48,7 +52,7 @@ namespace ImageSearcher.Infrastructure.Tests
             httpHandlerMock
                 .Setup(x => x.GetStringAsync(uri))
                 .ReturnsAsync(Resources.GetInfoSampleResponse);
-            var sut = new ImageService(httpHandlerMock.Object, ApiKey);
+            var sut = new ImageService(httpHandlerMock.Object, ApiKey, _mapper);
 
             var queryResult = await sut.GetByIdAsync(Id);
 
@@ -65,7 +69,7 @@ namespace ImageSearcher.Infrastructure.Tests
             httpHandlerMock
                 .Setup(x => x.GetStringAsync(uri))
                 .ReturnsAsync(Resources.SearchSampleResponse);
-            var sut = new ImageService(httpHandlerMock.Object, ApiKey);
+            var sut = new ImageService(httpHandlerMock.Object, ApiKey, _mapper);
             var filter = new ImageFilter { Tags = new[] { "cat" } };
 
             var queryResult = await sut.SearchAsync(filter);

@@ -1,8 +1,10 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using ImageSearcher.Core;
 using ImageSearcher.Core.DTO;
 using ImageSearcher.Core.Interfaces;
+using ImageSearcher.Web.Api.Models.Request;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ImageSearcher.Web.Api.Controllers
@@ -11,14 +13,16 @@ namespace ImageSearcher.Web.Api.Controllers
     public class ImagesController : Controller
     {
         private readonly IImageService _imageService;
+        private readonly IMapper _mapper;
 
-        public ImagesController(IImageService imageService)
+        public ImagesController(IImageService imageService, IMapper mapper)
         {
             _imageService = imageService;
+            _mapper = mapper;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(string id)
+        public async Task<ActionResult> GetByIdAsync(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -31,12 +35,14 @@ namespace ImageSearcher.Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery]ImageFilter filter)
+        public async Task<ActionResult> SearchAsync([FromQuery]SearchImages model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var filter = _mapper.Map<ImageFilter>(model);
 
             var result = await _imageService.SearchAsync(filter);
 
