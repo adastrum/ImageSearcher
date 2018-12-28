@@ -22,20 +22,15 @@ namespace ImageSearcher.Web.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetByIdAsync(string id)
+        public async Task<IActionResult> GetByIdAsync(string id)
         {
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                return BadRequest();
-            }
-
             var result = await _imageService.GetByIdAsync(id);
 
             return GetActionResult(result);
         }
 
         [HttpGet]
-        public async Task<ActionResult> SearchAsync([FromQuery]SearchImages model)
+        public async Task<IActionResult> SearchAsync([FromQuery]SearchImages model)
         {
             if (!ModelState.IsValid)
             {

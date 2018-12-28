@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageSearcher.Infrastructur
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageSearcher.Infrastructure.Tests", "ImageSearcher.Infrastructure.Tests\ImageSearcher.Infrastructure.Tests.csproj", "{50799380-2CFF-473F-94EF-D0E6539737CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSearcher.Web.Api", "ImageSearcher.Web.Api\ImageSearcher.Web.Api.csproj", "{948AE5CD-AD09-499E-A082-AEC19A051BEE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageSearcher.Web.Api", "ImageSearcher.Web.Api\ImageSearcher.Web.Api.csproj", "{948AE5CD-AD09-499E-A082-AEC19A051BEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSearcher.Web.Api.Tests", "ImageSearcher.Web.Api.Tests\ImageSearcher.Web.Api.Tests.csproj", "{8C2DA1EC-4B84-4231-992E-6554C714CF3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{948AE5CD-AD09-499E-A082-AEC19A051BEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{948AE5CD-AD09-499E-A082-AEC19A051BEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{948AE5CD-AD09-499E-A082-AEC19A051BEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C2DA1EC-4B84-4231-992E-6554C714CF3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C2DA1EC-4B84-4231-992E-6554C714CF3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C2DA1EC-4B84-4231-992E-6554C714CF3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C2DA1EC-4B84-4231-992E-6554C714CF3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
