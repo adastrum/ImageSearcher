@@ -26,7 +26,12 @@ namespace ImageSearcher.Web.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(string id)
         {
-            var result = await _imageService.GetByIdAsync(id);
+            var result = await _cache.GetAsync<QueryResult<ImageInfo>>(id);
+            if (result == null)
+            {
+                result = await _imageService.GetByIdAsync(id);
+                await _cache.SetAsync(id, result);
+            }
 
             return GetActionResult(result);
         }
@@ -41,7 +46,14 @@ namespace ImageSearcher.Web.Api.Controllers
 
             var filter = _mapper.Map<ImageFilter>(model);
 
-            var result = await _imageService.SearchAsync(filter);
+            var key = $"{string.Join(",", filter.Tags)}:{filter.Longitude}:{filter.Latitude}:{filter.PageNumber}:{filter.PageSize}";
+
+            var result = await _cache.GetAsync<QueryResult<ImageSet>>(key);
+            if (result == null)
+            {
+                result = await _imageService.SearchAsync(filter);
+                await _cache.SetAsync(key, result);
+            }
 
             return GetActionResult(result);
         }

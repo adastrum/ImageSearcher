@@ -5,6 +5,11 @@ namespace ImageSearcher.Core
     public class QueryResult<TModel>
         where TModel : class
     {
+        protected QueryResult()
+        {
+            
+        }
+
         protected QueryResult(TModel model, HttpStatusCode code, string message)
         {
             Model = model;
@@ -23,8 +28,8 @@ namespace ImageSearcher.Core
         }
 
         //todo: custom enum
-        public HttpStatusCode Code { get; }
-        public string Message { get; }
-        public TModel Model { get; }
+        public HttpStatusCode Code { get; set; }
+        public string Message { get; set; }
+        public TModel Model { get; set; }
     }
 }

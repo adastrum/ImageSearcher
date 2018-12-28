@@ -19,7 +19,7 @@ namespace ImageSearcher.Infrastructure
             where TValue : class
         {
             var serialized = JsonConvert.SerializeObject(value);
-            await _database.StringSetAsync(key, serialized);
+            await _database.StringSetAsync(key, serialized, TimeSpan.FromHours(1));
         }
 
         public async Task<TValue> GetAsync<TValue>(string key)
